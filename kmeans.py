@@ -29,14 +29,19 @@ def generate_prototypes(data, k, ds_size, labels=None):
 
 def kmeans(data, k=3, labels=None, norm=True):
     """K-means algorithm"""
-    if norm:
-        dataset = normalize(data)
-    else:
-        dataset = data
+    dataset = normalize(data) if norm else data
 
     ds_size, ds_dim = dataset.shape
     prototypes = generate_prototypes(dataset, k, ds_size, labels=labels)
-    print(f"Prototypes: \n{prototypes}")
+    # print(f"Prototypes: \n{prototypes}")
+    distances = np.zeros((ds_size, k))
+    for i in range(ds_size):
+        for j in range(k):
+            distances[i, j] = np.linalg.norm(dataset[i] - prototypes[j])
+    print(f"Distances matrix: \n{distances} \n{distances.shape}")
+
+    cluster_ids = np.argmin(distances, axis=1)
+    print(f"\nCluster IDs: \n{cluster_ids} \n{cluster_ids.shape}")
 
 
 
@@ -46,7 +51,7 @@ if __name__ == '__main__':
     iris_data = iris.data
     iris_labels = iris.target
 
-    kmeans(iris_data, k=3, labels=iris_labels)
+    kmeans(iris_data, k=3, labels=None)
 
     # print(np.unique(iris_labels))
 
