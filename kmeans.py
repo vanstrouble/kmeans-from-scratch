@@ -26,6 +26,16 @@ def generate_prototypes(data, k, ds_size, labels=None):
 
         return np.array(protopypes)
 
+def graph(data, title, xlabel, ylabel)
+    plt.figure(figsize=(10, 10))
+    plt.scatter(data[:, 0], data[:, 1], c='blue', label='Data Points')
+    plt.scatter(data[:, 0], data[:, 1], c='red', label='Prototypes')
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.legend()
+    plt.grid()
+    plt.show()
 
 def kmeans(data, k=3, labels=None, norm=True):
     """K-means algorithm"""
