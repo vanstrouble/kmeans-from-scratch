@@ -26,10 +26,11 @@ def generate_prototypes(data, k, ds_size, labels=None):
 
         return np.array(protopypes)
 
-def graph(data, title, xlabel, ylabel)
+def graph(data, prototypes=None, title='', xlabel='', ylabel=''):
     plt.figure(figsize=(10, 10))
     plt.scatter(data[:, 0], data[:, 1], c='blue', label='Data Points')
-    plt.scatter(data[:, 0], data[:, 1], c='red', label='Prototypes')
+    if prototypes is not None:
+        plt.scatter(prototypes[:, 0], prototypes[:, 1], c='red', marker='x', label='Prototypes')
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
@@ -53,6 +54,13 @@ def kmeans(data, k=3, labels=None, norm=True):
     cluster_ids = np.argmin(distances, axis=1)
     print(f"\nCluster IDs: \n{cluster_ids} \n{cluster_ids.shape}")
 
+    cluster_counts = np.bincount(cluster_ids)
+    for cluster_id, count in enumerate(cluster_counts):
+        print(f"Cluster {cluster_id}: {count} data points")
+
+    graph(dataset, prototypes, 'Scatter Plot with Prototypes', 'X Label', 'Y Label')
+    # graph(dataset, title='Scatter Plot without Prototypes', xlabel='X Label', ylabel='Y Label')
+
 
 
 if __name__ == '__main__':
@@ -61,7 +69,7 @@ if __name__ == '__main__':
     iris_data = iris.data
     iris_labels = iris.target
 
-    kmeans(iris_data, k=3, labels=None)
+    kmeans(iris_data, k=3,)
 
     # print(np.unique(iris_labels))
 
