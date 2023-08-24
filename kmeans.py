@@ -46,7 +46,9 @@ def kmeans(data, k=3, epochs=100, labels=None, norm=True):
     centroids = generate_centroids(dataset, k, ds_size, labels=labels)
     # print(f"Prototypes: \n{prototypes}")
 
-    for _ in range(epochs):
+    converged = False
+    epoch_count = 0
+    while not converged and epoch_count < epochs:
         distances = np.linalg.norm(dataset[:, np.newaxis, :] - centroids, axis=2)
         cluster_ids = np.argmin(distances, axis=1)
 
@@ -55,9 +57,10 @@ def kmeans(data, k=3, epochs=100, labels=None, norm=True):
         graph(dataset, centroids, 'Scatter Plot with Prototypes', 'X Label', 'Y Label')
 
         if np.allclose(centroids, new_centroids):
-            break
+            converged = True
         else:
             centroids = new_centroids.copy()
+            epoch_count += 1
 
     cluster_counts = np.bincount(cluster_ids)
     for cluster_id, count in enumerate(cluster_counts):
@@ -71,7 +74,7 @@ if __name__ == '__main__':
     iris_data = iris.data
     iris_labels = iris.target
 
-    kmeans(iris_data, k=3,)
+    kmeans(iris_data, k=3, )
 
     # print(np.unique(iris_labels))
 
