@@ -26,11 +26,17 @@ def generate_centroids(data, k, ds_size, labels=None):
 
         return np.array(protopypes)
 
-def graph(data, prototypes=None, title='', xlabel='', ylabel=''):
+def accuracy(assigned_labels, true_labels):
+    correct_count = np.sum(assigned_labels == true_labels)
+    total_count = len(assigned_labels)
+    accuracy = correct_count / total_count
+    return accuracy
+
+def graph(data, centroids=None, title='', xlabel='', ylabel='', colors=None):
     plt.figure(figsize=(10, 10))
-    plt.scatter(data[:, 0], data[:, 1], c='blue', label='Data Points')
-    if prototypes is not None:
-        plt.scatter(prototypes[:, 0], prototypes[:, 1], c='red', marker='x', label='Prototypes')
+    plt.scatter(data[:, 0], data[:, 1], c=colors, label='Data Points')
+    if centroids is not None:
+        plt.scatter(centroids[:, 0], centroids[:, 1], c='red', marker='x', label='Centroids')
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
@@ -38,7 +44,7 @@ def graph(data, prototypes=None, title='', xlabel='', ylabel=''):
     plt.grid()
     plt.show()
 
-def kmeans(data, k=3, epochs=100, labels=None, norm=True):
+def kmeans(data, k=3, epochs=100, labels=None, norm=True, use_labels=False):
     """K-means algorithm"""
     dataset = normalize(data) if norm else data
 
@@ -54,7 +60,7 @@ def kmeans(data, k=3, epochs=100, labels=None, norm=True):
 
         new_centroids = np.array([np.mean(dataset[cluster_ids == j], axis=0) for j in range(k)])
 
-        graph(dataset, centroids, 'Scatter Plot with Prototypes', 'X Label', 'Y Label')
+        # graph(dataset, centroids, 'Scatter Plot with Prototypes', 'X Label', 'Y Label')
 
         if np.allclose(centroids, new_centroids):
             converged = True
@@ -66,6 +72,12 @@ def kmeans(data, k=3, epochs=100, labels=None, norm=True):
     for cluster_id, count in enumerate(cluster_counts):
         print(f"Cluster {cluster_id}: {count} data points")
 
+    a = accuracy(cluster_ids, labels)
+    print(f'Accuracy: {a:.2f}')
+
+    colors = [plt.cm.jet(float(i) / max(cluster_ids)) for i in cluster_ids]
+    graph(dataset, centroids, 'Scatter Plot with Clusters', 'X Label', 'Y Label', colors=colors)
+
 
 
 if __name__ == '__main__':
@@ -74,7 +86,7 @@ if __name__ == '__main__':
     iris_data = iris.data
     iris_labels = iris.target
 
-    kmeans(iris_data, k=3, )
+    kmeans(iris_data, k=3, labels=iris_labels)
 
     # print(np.unique(iris_labels))
 
