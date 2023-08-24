@@ -10,7 +10,7 @@ def normalize(data):
     normalized_data = (data - means) / stds
     return normalized_data
 
-def generate_prototypes(data, k, ds_size, labels=None):
+def generate_centroids(data, k, ds_size, labels=None):
     """Initializes prototypes"""
     if labels is None:
         # Random choice
@@ -38,28 +38,30 @@ def graph(data, prototypes=None, title='', xlabel='', ylabel=''):
     plt.grid()
     plt.show()
 
-def kmeans(data, k=3, labels=None, norm=True):
+def kmeans(data, k=3, epochs=100, labels=None, norm=True):
     """K-means algorithm"""
     dataset = normalize(data) if norm else data
 
     ds_size, ds_dim = dataset.shape
-    prototypes = generate_prototypes(dataset, k, ds_size, labels=labels)
+    centroids = generate_centroids(dataset, k, ds_size, labels=labels)
     # print(f"Prototypes: \n{prototypes}")
-    distances = np.zeros((ds_size, k))
-    for i in range(ds_size):
-        for j in range(k):
-            distances[i, j] = np.linalg.norm(dataset[i] - prototypes[j])
-    print(f"Distances matrix: \n{distances} \n{distances.shape}")
 
-    cluster_ids = np.argmin(distances, axis=1)
-    print(f"\nCluster IDs: \n{cluster_ids} \n{cluster_ids.shape}")
+    for _ in range(epochs):
+        distances = np.linalg.norm(dataset[:, np.newaxis, :] - centroids, axis=2)
+        cluster_ids = np.argmin(distances, axis=1)
+
+        new_centroids = np.array([np.mean(dataset[cluster_ids == j], axis=0) for j in range(k)])
+
+        graph(dataset, centroids, 'Scatter Plot with Prototypes', 'X Label', 'Y Label')
+
+        if np.allclose(centroids, new_centroids):
+            break
+        else:
+            centroids = new_centroids.copy()
 
     cluster_counts = np.bincount(cluster_ids)
     for cluster_id, count in enumerate(cluster_counts):
         print(f"Cluster {cluster_id}: {count} data points")
-
-    graph(dataset, prototypes, 'Scatter Plot with Prototypes', 'X Label', 'Y Label')
-    # graph(dataset, title='Scatter Plot without Prototypes', xlabel='X Label', ylabel='Y Label')
 
 
 
