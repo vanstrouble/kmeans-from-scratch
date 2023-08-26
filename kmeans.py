@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.datasets import load_iris
+from sklearn.metrics import adjusted_rand_score
 
 
 def normalize(data):
@@ -26,11 +27,21 @@ def generate_centroids(data, k, ds_size, labels=None, use_labels=False):
 
         return np.array(centroids)
 
+def kmeans_plus_plus_init(data, k):
+    centroids = [data[np.random.choice(len(data))]]  # Initialize with random centroids
+
+    for _ in range(1, k):
+        distances = np.array([np.min(np.linalg.norm(data - centroid, axis=1) ** 2) for centroid in centroids])
+        sum_distances = np.sum(distances)
+        probabilities = distances / sum_distances if sum_distances > 0 else np.ones(len(data)) / len(data)
+        next_centroid_idx = np.random.choice(len(data), p=probabilities)
+        centroids.append(data[next_centroid_idx])
+
+    return np.array(centroids)
+
 def accuracy(assigned_labels, true_labels):
-    correct_count = np.sum(assigned_labels == true_labels)
-    total_count = len(assigned_labels)
-    accuracy = correct_count / total_count
-    return accuracy
+    ari = adjusted_rand_score(true_labels, assigned_labels)
+    return ari
 
 def graph(data, centroids=None, title='', xlabel='', ylabel='', colors=None):
     plt.figure(figsize=(10, 10))
@@ -49,7 +60,7 @@ def kmeans(data, k=3, epochs=100, labels=None, norm=True, use_labels=False):
     dataset = normalize(data) if norm else data
 
     ds_size, ds_dim = dataset.shape
-    centroids = generate_centroids(dataset, k, ds_size, labels=labels, use_labels=use_labels)
+    centroids = kmeans_plus_plus_init(dataset, k) if not use_labels else generate_centroids(dataset, k, ds_size, labels=labels, use_labels=True)
     # print(f"Prototypes: \n{prototypes}")
 
     converged = False
@@ -88,13 +99,3 @@ if __name__ == '__main__':
     iris_labels = iris.target
 
     kmeans(iris_data, k=3, epochs=100, labels=iris_labels, use_labels=False)
-
-    # print(np.unique(iris_labels))
-
-    # kmeans(iris_data[:, 2:])
-
-    # ds_size, ds_dim = iris_data.shape
-
-    # print(f"DS array type: {type(iris_data)}")  # Verify Numpy arrays
-    # print(f"Data size: {ds_size}, Data dimensions: {ds_dim}")
-    # print(f"\nNormalized data: \n{normalize(iris_data)}")
