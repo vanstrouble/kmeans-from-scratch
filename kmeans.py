@@ -10,21 +10,21 @@ def normalize(data):
     normalized_data = (data - means) / stds
     return normalized_data
 
-def generate_centroids(data, k, ds_size, labels=None):
+def generate_centroids(data, k, ds_size, labels=None, use_labels=False):
     """Initializes prototypes"""
-    if labels is None:
+    if use_labels is False:
         # Random choice
         p_indices = np.random.choice(ds_size, k, replace=False)
         return data[p_indices]
     else:
         # Mean choice
-        protopypes = []
+        centroids = []
         for label in np.unique(labels):
             label_data = data[labels == label]
             class_mean = np.mean(label_data, axis=0)
-            protopypes.append(class_mean)
+            centroids.append(class_mean)
 
-        return np.array(protopypes)
+        return np.array(centroids)
 
 def accuracy(assigned_labels, true_labels):
     correct_count = np.sum(assigned_labels == true_labels)
@@ -49,7 +49,7 @@ def kmeans(data, k=3, epochs=100, labels=None, norm=True, use_labels=False):
     dataset = normalize(data) if norm else data
 
     ds_size, ds_dim = dataset.shape
-    centroids = generate_centroids(dataset, k, ds_size, labels=labels)
+    centroids = generate_centroids(dataset, k, ds_size, labels=labels, use_labels=use_labels)
     # print(f"Prototypes: \n{prototypes}")
 
     converged = False
@@ -68,6 +68,7 @@ def kmeans(data, k=3, epochs=100, labels=None, norm=True, use_labels=False):
             centroids = new_centroids.copy()
             epoch_count += 1
 
+    print(f"Epochs: {epoch_count}")
     cluster_counts = np.bincount(cluster_ids)
     for cluster_id, count in enumerate(cluster_counts):
         print(f"Cluster {cluster_id}: {count} data points")
@@ -86,7 +87,7 @@ if __name__ == '__main__':
     iris_data = iris.data
     iris_labels = iris.target
 
-    kmeans(iris_data, k=3, labels=iris_labels)
+    kmeans(iris_data, k=3, epochs=100, labels=iris_labels, use_labels=False)
 
     # print(np.unique(iris_labels))
 
