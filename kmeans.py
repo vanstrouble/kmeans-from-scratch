@@ -67,11 +67,6 @@ def kmeans(data, k=3, epochs=100, labels=None, norm=True, use_labels=False):
         else:
             centroids = new_centroids.copy()
             epoch_count += 1
-        # if np.allclose(centroids, new_centroids):
-        #     converged = True
-        # else:
-        #     centroids = new_centroids.copy()
-        #     epoch_count += 1
 
     print(f"Epochs: {epoch_count}")
     cluster_counts = np.bincount(cluster_ids)
