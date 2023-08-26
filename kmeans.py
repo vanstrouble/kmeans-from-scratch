@@ -27,18 +27,6 @@ def generate_centroids(data, k, ds_size, labels=None, use_labels=False):
 
         return np.array(centroids)
 
-def kmeans_plus_plus_init(data, k):
-    centroids = [data[np.random.choice(len(data))]]  # Initialize with random centroids
-
-    for _ in range(1, k):
-        distances = np.array([np.min(np.linalg.norm(data - centroid, axis=1) ** 2) for centroid in centroids])
-        sum_distances = np.sum(distances)
-        probabilities = distances / sum_distances if sum_distances > 0 else np.ones(len(data)) / len(data)
-        next_centroid_idx = np.random.choice(len(data), p=probabilities)
-        centroids.append(data[next_centroid_idx])
-
-    return np.array(centroids)
-
 def accuracy(assigned_labels, true_labels):
     ari = adjusted_rand_score(true_labels, assigned_labels)
     return ari
@@ -60,7 +48,7 @@ def kmeans(data, k=3, epochs=100, labels=None, norm=True, use_labels=False):
     dataset = normalize(data) if norm else data
 
     ds_size, ds_dim = dataset.shape
-    centroids = kmeans_plus_plus_init(dataset, k) if not use_labels else generate_centroids(dataset, k, ds_size, labels=labels, use_labels=True)
+    centroids = generate_centroids(dataset, k, ds_size, labels=labels, use_labels=use_labels)
     # print(f"Prototypes: \n{prototypes}")
 
     converged = False
@@ -73,19 +61,25 @@ def kmeans(data, k=3, epochs=100, labels=None, norm=True, use_labels=False):
 
         # graph(dataset, centroids, 'Scatter Plot with Prototypes', 'X Label', 'Y Label')
 
-        if np.allclose(centroids, new_centroids):
+        max_centroid_diif = np.max(np.abs(centroids - new_centroids))
+        if max_centroid_diif < 0.0001:
             converged = True
         else:
             centroids = new_centroids.copy()
             epoch_count += 1
+        # if np.allclose(centroids, new_centroids):
+        #     converged = True
+        # else:
+        #     centroids = new_centroids.copy()
+        #     epoch_count += 1
 
     print(f"Epochs: {epoch_count}")
     cluster_counts = np.bincount(cluster_ids)
     for cluster_id, count in enumerate(cluster_counts):
         print(f"Cluster {cluster_id}: {count} data points")
 
-    a = accuracy(cluster_ids, labels)
-    print(f'Accuracy: {a:.2f}')
+    # a = accuracy(cluster_ids, labels)
+    # print(f'Accuracy: {a:.2f}')
 
     colors = [plt.cm.jet(float(i) / max(cluster_ids)) for i in cluster_ids]
     graph(dataset, centroids, 'Scatter Plot with Clusters', 'X Label', 'Y Label', colors=colors)
@@ -93,9 +87,16 @@ def kmeans(data, k=3, epochs=100, labels=None, norm=True, use_labels=False):
 
 
 if __name__ == '__main__':
-    # Loading iris dataset
-    iris = load_iris()
-    iris_data = iris.data
-    iris_labels = iris.target
+    print('Welcome to Kmeans')
+    setup = int(input('Select a dataset [1. Iris, 2. Randomized]: '))
 
-    kmeans(iris_data, k=3, epochs=100, labels=iris_labels, use_labels=False)
+    if setup == 1:
+        # Loading iris dataset
+        iris = load_iris()
+        iris_data = iris.data
+        iris_labels = iris.target
+        kmeans(iris_data, k=3, epochs=100, labels=iris_labels, use_labels=False)
+
+    else:
+        random_points = np.random.randint(0, 100, (100, 2))
+        kmeans(random_points, k=3, epochs=200, use_labels=False)
