@@ -61,8 +61,8 @@ def kmeans(data, k=3, epochs=100, labels=None, norm=True, init_method='random', 
         distances = np.linalg.norm(dataset[:, np.newaxis, :] - centroids, axis=2)
         cluster_ids = np.argmin(distances, axis=1)
 
-        new_centroids = np.array([np.mean(dataset[cluster_ids == j], axis=0) for j in range(k)])
-        # new_centroids = generate_centroids(dataset, k, ds_size, labels=cluster_ids, method='mean')
+        # new_centroids = np.array([np.mean(dataset[cluster_ids == j], axis=0) for j in range(k)])
+        new_centroids = generate_centroids(dataset, k, ds_size, labels=cluster_ids, method='mean')
 
         # graph(dataset, centroids, 'Scatter Plot with Prototypes', 'X Label', 'Y Label')
 
@@ -78,8 +78,9 @@ def kmeans(data, k=3, epochs=100, labels=None, norm=True, init_method='random', 
     for cluster_id, count in enumerate(cluster_counts):
         print(f"Cluster {cluster_id}: {count} data points")
 
-    # a = accuracy(cluster_ids, labels, dataset)
-    # print(f'Accuracy: {a:.2f}')
+    if labels:
+        a = accuracy(cluster_ids, labels, dataset)
+        print(f'Accuracy: {a:.2f}')
 
     colors = [plt.cm.jet(float(i) / max(cluster_ids)) for i in cluster_ids]
     graph(dataset, centroids, 'Scatter Plot with Clusters', 'X Label', 'Y Label', colors=colors)
@@ -95,7 +96,7 @@ if __name__ == '__main__':
         iris = load_iris()
         iris_data = iris.data
         iris_labels = iris.target
-        kmeans(iris_data, k=3, epochs=100, norm=False, labels=iris_labels, init_method='random')
+        kmeans(iris_data, k=3, epochs=100, norm=True, labels=iris_labels, init_method='random')
 
     else:
         random_points = np.random.randint(0, 100, (100, 2))
