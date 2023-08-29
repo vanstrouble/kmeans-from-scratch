@@ -5,11 +5,18 @@ from sklearn.metrics import adjusted_rand_score
 
 
 def normalize(data):
-    """Normalize data"""
+    """Normalize data using min-max scaling"""
+    min_vals = np.min(data, axis=0)
+    max_vals = np.max(data, axis=0)
+    normalized_data = (data - min_vals) / (max_vals - min_vals)
+    return normalized_data
+
+def standardize(data):
+    """Standardize data"""
     means = np.mean(data, axis=0)
     stds = np.std(data, axis=0)
-    normalized_data = (data - means) / stds
-    return normalized_data
+    standar_data = (data - means) / stds
+    return standar_data
 
 def generate_centroids(data, k, ds_size, labels=None, method='random'):
     """Initializes prototypes"""
@@ -31,8 +38,8 @@ def generate_centroids(data, k, ds_size, labels=None, method='random'):
 
 def accuracy(assigned_labels, true_labels, data):
     acc = np.sum(assigned_labels == true_labels) / len(true_labels)
-    for index, element in enumerate(assigned_labels):
-        print(f'{data[index]}, pred: {element}, expected: {true_labels[index]}')
+    # for index, element in enumerate(assigned_labels):
+    #     print(f'{data[index]}, pred: {element}, expected: {true_labels[index]}')
     return acc
 
 def graph(data, centroids=None, title='', xlabel='', ylabel='', colors=None):
@@ -78,9 +85,9 @@ def kmeans(data, k=3, epochs=100, labels=None, norm=True, init_method='random', 
     for cluster_id, count in enumerate(cluster_counts):
         print(f"Cluster {cluster_id}: {count} data points")
 
-    if labels:
-        a = accuracy(cluster_ids, labels, dataset)
-        print(f'Accuracy: {a:.2f}')
+    if labels is not None:
+        acc = accuracy(cluster_ids, labels, dataset)
+        print(f'Accuracy: {acc:.2f}')
 
     colors = [plt.cm.jet(float(i) / max(cluster_ids)) for i in cluster_ids]
     graph(dataset, centroids, 'Scatter Plot with Clusters', 'X Label', 'Y Label', colors=colors)
