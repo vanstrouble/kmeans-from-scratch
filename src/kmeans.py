@@ -11,6 +11,7 @@ def normalize(data):
     normalized_data = (data - min_vals) / (max_vals - min_vals)
     return normalized_data
 
+
 def standardize(data):
     """Standardize data"""
     means = np.mean(data, axis=0)
@@ -18,15 +19,16 @@ def standardize(data):
     standar_data = (data - means) / stds
     return standar_data
 
-def generate_centroids(data, k, ds_size, labels=None, method='random'):
+
+def generate_centroids(data, k, ds_size, labels=None, method="random"):
     """Initializes prototypes"""
-    if method == 'random':
+    if method == "random":
         p_indices = np.random.choice(ds_size, k, replace=False)
         return data[p_indices]
-    elif method == 'mean':
+    elif method == "mean":
         centroids = []
         if labels is None:
-            raise ValueError('Labels must be provided dor the mean method')
+            raise ValueError("Labels must be provided dor the mean method")
 
         for label in np.unique(labels):
             label_data = data[labels == label]
@@ -34,7 +36,8 @@ def generate_centroids(data, k, ds_size, labels=None, method='random'):
             centroids.append(class_mean)
         return np.array(centroids)
     else:
-        raise ValueError('Invalid centroid generation method')
+        raise ValueError("Invalid centroid generation method")
+
 
 def accuracy(assigned_labels, true_labels, data):
     acc = np.sum(assigned_labels == true_labels) / len(true_labels)
@@ -42,11 +45,14 @@ def accuracy(assigned_labels, true_labels, data):
     #     print(f'{data[index]}, pred: {element}, expected: {true_labels[index]}')
     return acc
 
-def graph(data, centroids=None, title='', xlabel='', ylabel='', colors=None):
+
+def graph(data, centroids=None, title="", xlabel="", ylabel="", colors=None):
     plt.figure(figsize=(10, 10))
-    plt.scatter(data[:, 0], data[:, 1], c=colors, label='Data Points')
+    plt.scatter(data[:, 0], data[:, 1], c=colors, label="Data Points")
     if centroids is not None:
-        plt.scatter(centroids[:, 0], centroids[:, 1], c='red', marker='x', label='Centroids')
+        plt.scatter(
+            centroids[:, 0], centroids[:, 1], c="red", marker="x", label="Centroids"
+        )
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
@@ -54,12 +60,17 @@ def graph(data, centroids=None, title='', xlabel='', ylabel='', colors=None):
     plt.grid()
     plt.show()
 
-def kmeans(data, k=3, epochs=100, labels=None, norm=True, init_method='random', umbral=0.0001):
+
+def kmeans(
+    data, k=3, epochs=100, labels=None, norm=True, init_method="random", umbral=0.0001
+):
     """K-means algorithm"""
     dataset = normalize(data) if norm else data
 
     ds_size, ds_dim = dataset.shape
-    centroids = generate_centroids(dataset, k, ds_size, labels=labels, method=init_method)
+    centroids = generate_centroids(
+        dataset, k, ds_size, labels=labels, method=init_method
+    )
     # print(f"Prototypes: \n{prototypes}")
 
     converged = False
@@ -69,7 +80,9 @@ def kmeans(data, k=3, epochs=100, labels=None, norm=True, init_method='random', 
         cluster_ids = np.argmin(distances, axis=1)
 
         # new_centroids = np.array([np.mean(dataset[cluster_ids == j], axis=0) for j in range(k)])
-        new_centroids = generate_centroids(dataset, k, ds_size, labels=cluster_ids, method='mean')
+        new_centroids = generate_centroids(
+            dataset, k, ds_size, labels=cluster_ids, method="mean"
+        )
 
         # graph(dataset, centroids, 'Scatter Plot with Prototypes', 'X Label', 'Y Label')
 
@@ -87,24 +100,41 @@ def kmeans(data, k=3, epochs=100, labels=None, norm=True, init_method='random', 
 
     if labels is not None:
         acc = accuracy(cluster_ids, labels, dataset)
-        print(f'Accuracy: {acc:.2f}')
+        print(f"Accuracy: {acc:.2f}")
 
     colors = [plt.cm.jet(float(i) / max(cluster_ids)) for i in cluster_ids]
-    graph(dataset, centroids, 'Scatter Plot with Clusters', 'X Label', 'Y Label', colors=colors)
+    graph(
+        dataset,
+        centroids,
+        "Scatter Plot with Clusters",
+        "X Label",
+        "Y Label",
+        colors=colors,
+    )
 
 
-
-if __name__ == '__main__':
-    print('Welcome to Kmeans')
-    setup = int(input('Select a dataset [1. Iris, 2. Randomized]: '))
+if __name__ == "__main__":
+    print("Welcome to Kmeans")
+    setup = int(input("Select a dataset [1. Iris, 2. Randomized]: "))
 
     if setup == 1:
         # Loading iris dataset
         iris = load_iris()
         iris_data = iris.data
         iris_labels = iris.target
-        kmeans(iris_data, k=3, epochs=100, norm=True, labels=iris_labels, init_method='random')
+        kmeans(
+            iris_data,
+            k=3,
+            epochs=100,
+            norm=True,
+            labels=iris_labels,
+            init_method="random",
+        )
 
     else:
         random_points = np.random.randint(0, 100, (100, 2))
-        kmeans(random_points, k=3, epochs=200, )
+        kmeans(
+            random_points,
+            k=3,
+            epochs=200,
+        )
