@@ -20,25 +20,6 @@ def standardize(data):
     return standar_data
 
 
-def generate_centroids(data, k, ds_size, labels=None, method="random"):
-    """Initializes prototypes"""
-    if method == "random":
-        p_indices = np.random.choice(ds_size, k, replace=False)
-        return data[p_indices]
-    elif method == "mean":
-        centroids = []
-        if labels is None:
-            raise ValueError("Labels must be provided dor the mean method")
-
-        for label in np.unique(labels):
-            label_data = data[labels == label]
-            class_mean = np.mean(label_data, axis=0)
-            centroids.append(class_mean)
-        return np.array(centroids)
-    else:
-        raise ValueError("Invalid centroid generation method")
-
-
 def accuracy(assigned_labels, true_labels, data):
     acc = np.sum(assigned_labels == true_labels) / len(true_labels)
     # for index, element in enumerate(assigned_labels):
@@ -113,7 +94,7 @@ def kmeans(
     )
 
 
-def initialize_centroids(data, k):
+def generate_centroids(data, k):
     k_indices = np.random.choice(len(data), 1, replace=False)
     centroids = data[k_indices]
 
@@ -169,7 +150,7 @@ if __name__ == "__main__":
 
     k = 3
 
-    centroids = initialize_centroids(X, k)
+    centroids = generate_centroids(X, k)
     print(centroids)
 
     plt.figure(figsize=(8, 6))
