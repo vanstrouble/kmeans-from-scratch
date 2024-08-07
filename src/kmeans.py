@@ -115,17 +115,17 @@ def kmeans(
 
 def initialize_centroids(data, k):
     k_indices = np.random.choice(len(data), 1, replace=False)
-    centroids = data[k_indices][0]
+    centroids = data[k_indices]
 
     for _ in range(1, k):
-        distances = np.min([np.linalg.norm(data - centroid, axis=1) for centroid in centroids])
+        distances = np.min([np.linalg.norm(data - centroid, axis=1) for centroid in centroids], axis=0)
         probs = distances / np.sum(distances)
         cumulative_probs = np.cumsum(probs)
         r = np.random.rand()
         i = np.searchsorted(cumulative_probs, r)
-        centroids.append(data[i])
+        centroids = np.vstack([centroids, data[i]])
 
-    return np.array(centroids)
+    return centroids
 
 
 class Kmeans:
@@ -136,28 +136,47 @@ class Kmeans:
 
         pass
 
+
 if __name__ == "__main__":
     print("Welcome to Kmeans")
-    setup = int(input("Select a dataset [1. Iris, 2. Randomized]: "))
+    # setup = int(input("Select a dataset [1. Iris, 2. Randomized]: "))
 
-    if setup == 1:
-        # Loading iris dataset
-        iris = load_iris()
-        iris_data = iris.data
-        iris_labels = iris.target
-        # kmeans(
-        #     iris_data,
-        #     k=3,
-        #     epochs=100,
-        #     norm=True,
-        #     labels=iris_labels,
-        #     init_method="random",
-        # )
+    # if setup == 1:
+    #     # Loading iris dataset
+    #     iris = load_iris()
+    #     iris_data = iris.data
+    #     iris_labels = iris.target
+    #     # kmeans(
+    #     #     iris_data,
+    #     #     k=3,
+    #     #     epochs=100,
+    #     #     norm=True,
+    #     #     labels=iris_labels,
+    #     #     init_method="random",
+    #     # )
 
-    else:
-        random_points = np.random.randint(0, 100, (100, 2))
-        # kmeans(
-        #     random_points,
-        #     k=3,
-        #     epochs=200,
-        # )
+    # else:
+    #     random_points = np.random.randint(0, 100, (100, 2))
+    #     # kmeans(
+    #     #     random_points,
+    #     #     k=3,
+    #     #     epochs=200,
+    #     # )
+
+    iris = load_iris()
+    X = iris.data
+    y = iris.target
+
+    k = 3
+
+    centroids = initialize_centroids(X, k)
+    print(centroids)
+
+    plt.figure(figsize=(8, 6))
+    plt.scatter(X[:, 0], X[:, 1], c='blue', label='Datos')
+    plt.scatter(centroids[:, 0], centroids[:, 1], c='red', marker='X', s=200, label='Centroides iniciales')
+    plt.xlabel('Feature 1')
+    plt.ylabel('Feature 2')
+    plt.title('Centroides Iniciales con KMeans++')
+    plt.legend()
+    plt.show()
