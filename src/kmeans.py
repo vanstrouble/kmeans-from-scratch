@@ -126,8 +126,9 @@ def update_centroids(data, k, labels):
 
 
 class Kmeans:
-    def __init__(self, k=3, max_ters=300) -> None:
+    def __init__(self, k=3, max_iters=300) -> None:
         self.k = k
+        self.max_iters = max_iters
 
     def predict(self, data):
         self.centroids = generate_centroids(data, self.k)
