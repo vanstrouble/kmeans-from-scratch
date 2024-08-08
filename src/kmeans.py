@@ -116,6 +116,15 @@ def generate_centroids(data, k):
     return centroids
 
 
+def update_centroids(data, k, labels):
+    new_centroids = np.zeros((k, data.shape[1]))
+    for i in range(k):
+        cluster_points = data[labels == i]
+        if len(cluster_points) > 0:
+            new_centroids[i] = np.mean(cluster_points, axis=0)
+    return new_centroids
+
+
 class Kmeans:
     def __init__(self, k=3, max_ters=300) -> None:
         self.k = k
@@ -124,8 +133,13 @@ class Kmeans:
         self.centroids = generate_centroids(data, self.k)
 
         for _ in range(self.max_iters):
-            pass
-        pass
+            self.labels = np.argmin(compute_distance(data, self.centroids), axis=1)
+            new_centroids = update_centroids(data, self.k, labels=self.labels)
+            if np.allclose(self.centroids, new_centroids):
+                break
+            self.centroids = new_centroids
+
+        return self.labels, self.centroids
 
 
 if __name__ == "__main__":
