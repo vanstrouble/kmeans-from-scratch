@@ -94,12 +94,19 @@ def kmeans(
     )
 
 
+def compute_distance(data, k):
+    distances = np.zeros((data.shape[0], k.shape[0]))
+    for i, k_values in enumerate(k):
+        distances[:, i] = np.linalg.norm(data - k_values, axis=1)
+    return distances
+
+
 def generate_centroids(data, k):
     k_indices = np.random.choice(len(data), 1, replace=False)
     centroids = data[k_indices]
 
     for _ in range(1, k):
-        distances = np.min([np.linalg.norm(data - centroid, axis=1) for centroid in centroids], axis=0)
+        distances = np.min(compute_distance(data, centroids), axis=1)
         probs = distances / np.sum(distances)
         cumulative_probs = np.cumsum(probs)
         r = np.random.rand()
@@ -114,7 +121,10 @@ class Kmeans:
         self.k = k
 
     def predict(self, data):
+        self.centroids = generate_centroids(data, self.k)
 
+        for _ in range(self.max_iters):
+            pass
         pass
 
 
@@ -154,10 +164,17 @@ if __name__ == "__main__":
     print(centroids)
 
     plt.figure(figsize=(8, 6))
-    plt.scatter(X[:, 0], X[:, 1], c='blue', label='Datos')
-    plt.scatter(centroids[:, 0], centroids[:, 1], c='red', marker='X', s=200, label='Centroides iniciales')
-    plt.xlabel('Feature 1')
-    plt.ylabel('Feature 2')
-    plt.title('Centroides Iniciales con KMeans++')
+    plt.scatter(X[:, 0], X[:, 1], c="blue", label="Datos")
+    plt.scatter(
+        centroids[:, 0],
+        centroids[:, 1],
+        c="red",
+        marker="X",
+        s=200,
+        label="Centroides iniciales",
+    )
+    plt.xlabel("Feature 1")
+    plt.ylabel("Feature 2")
+    plt.title("Centroides Iniciales con KMeans++")
     plt.legend()
     plt.show()
