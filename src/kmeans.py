@@ -8,6 +8,7 @@ def compute_distance(data, k):
     distances = np.zeros((data.shape[0], k.shape[0]))
     for i, k_values in enumerate(k):
         distances[:, i] = np.linalg.norm(data - k_values, axis=1)
+
     return distances
 
 
@@ -30,8 +31,10 @@ def update_centroids(data, k, labels):
     new_centroids = np.zeros((k, data.shape[1]))
     for i in range(k):
         cluster_points = data[labels == i]
+
         if len(cluster_points) > 0:
             new_centroids[i] = np.mean(cluster_points, axis=0)
+
     return new_centroids
 
 
@@ -39,6 +42,7 @@ class Kmeans:
     def __init__(self, k=3, max_iters=300) -> None:
         self.k = k
         self.max_iters = max_iters
+        self.iter_num = 0
 
     def predict(self, data):
         self.centroids = generate_centroids(data, self.k)
@@ -46,21 +50,24 @@ class Kmeans:
         for _ in range(self.max_iters):
             self.labels = np.argmin(compute_distance(data, self.centroids), axis=1)
             new_centroids = update_centroids(data, self.k, labels=self.labels)
+
             if np.allclose(self.centroids, new_centroids):
                 break
             self.centroids = new_centroids
 
+            self.iter_num += 1
+
         return self.labels, self.centroids
 
     def plot(self, data):
-        plt.figure(figsize=(10, 10))
+        # plt.figure(figsize=(10, 10))
         plt.scatter(data[:, 0], data[:, 1], c=self.labels, label="Data Points")
         plt.scatter(
             self.centroids[:, 0],
             self.centroids[:, 1],
             c="red",
             marker="x",
-            label="Centroids",
+            label=f"Centroids | Iter: {self.iter_num}",
         )
         plt.title("Scatter Plot with Clusters")
         plt.xlabel("X Label")
