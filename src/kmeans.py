@@ -57,7 +57,7 @@ class Kmeans:
         self.inertia = None
         self.iter_num = 0
 
-    def predict(self, data):
+    def predict(self, data, inertia=False):
         self.centroids = generate_centroids(data, self.k)
 
         for _ in range(self.max_iters):
@@ -71,6 +71,9 @@ class Kmeans:
             self.inertia = new_inertia
 
             self.iter_num += 1
+
+        if inertia:
+            return self.labels, self.centroids, self.inertia
 
         return self.labels, self.centroids
 
