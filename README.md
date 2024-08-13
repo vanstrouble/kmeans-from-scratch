@@ -26,3 +26,19 @@ K-means is a centroid-based iterative clustering algorithm that divides a datase
     b. For each cluster:
         i. Update the centroid by calculating the mean of the points assigned to the cluster.
 3. End
+```
+
+### Kmeans operation
+
+<div>
+    <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-ML0187EN-SkillsNetwork/labs/module%203/images/KMeansClustering_example.gif" width=700 alt="K-means representation image">
+</div>
+
+### Pros and Cons
+
+|       Pros       |       Cons       |
+| ---------------- | ------- |
+| Easy to implement | Must manually chose K |
+| Always converges to local minimum | Not guaranteed to find global minimum |
+| Scales well to large datasets | May not perform well on data of varying density |
+| Generalizes to clusters of different shapes and sizes | Clusters are biased by outliers |
