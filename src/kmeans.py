@@ -38,10 +38,23 @@ def update_centroids(data, k, labels):
     return new_centroids
 
 
+def compute_inertia(data, centroids, labels):
+    inertia = 0
+    for i, centroid in enumerate(centroids):
+        cluster_points = data[labels == i]
+
+        if len(cluster_points) > 0:
+            distances = compute_distance(cluster_points, np.array([centroid]))[:, 0]
+            inertia += np.sum(distances**2)
+
+    return inertia
+
+
 class Kmeans:
     def __init__(self, k=3, max_iters=300) -> None:
         self.k = k
         self.max_iters = max_iters
+        self.inertia = None
         self.iter_num = 0
 
     def predict(self, data):
@@ -50,17 +63,18 @@ class Kmeans:
         for _ in range(self.max_iters):
             self.labels = np.argmin(compute_distance(data, self.centroids), axis=1)
             new_centroids = update_centroids(data, self.k, labels=self.labels)
+            new_inertia = compute_inertia(data, new_centroids, self.labels)
 
-            if np.allclose(self.centroids, new_centroids):
+            if self.inertia is not None and np.allclose(self.inertia, new_inertia):
                 break
             self.centroids = new_centroids
+            self.inertia = new_inertia
 
             self.iter_num += 1
 
         return self.labels, self.centroids
 
     def plot(self, data):
-        # plt.figure(figsize=(10, 10))
         plt.scatter(data[:, 0], data[:, 1], c=self.labels, label="Data Points")
         plt.scatter(
             self.centroids[:, 0],
