@@ -57,7 +57,7 @@ class Kmeans:
         self.inertia = None
         self.iter_num = 0
 
-    def predict(self, data, inertia=False):
+    def fit_transform(self, data, inertia=False):
         self.centroids = generate_centroids(data, self.k)
 
         for _ in range(self.max_iters):
@@ -103,5 +103,5 @@ if __name__ == "__main__":
     k = 3
 
     k_means = Kmeans(k=k)
-    labels, centroids = k_means.predict(X_normalized)
+    labels, centroids = k_means.fit_transform(X_normalized)
     k_means.plot(X_normalized)
