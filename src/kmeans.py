@@ -1,13 +1,21 @@
 import numpy as np
 import matplotlib.pyplot as plt
+
+from numba import njit
 from sklearn.datasets import load_iris
 from sklearn.preprocessing import Normalizer
 
 
-def compute_distance(data, k):
-    distances = np.zeros((data.shape[0], k.shape[0]))
-    for i, k_values in enumerate(k):
-        distances[:, i] = np.linalg.norm(data - k_values, axis=1)
+@njit
+def compute_distance(data, centroids):
+    distances = np.zeros((data.shape[0], centroids.shape[0]))
+    for i in range(centroids.shape[0]):
+        centroid = centroids[i]
+        for j in range(data.shape[0]):
+            dist = 0.0
+            for k in range(data.shape[1]):
+                dist += (data[j, k] - centroid[k]) ** 2
+            distances[j, i] = np.sqrt(dist)
 
     return distances
 
@@ -97,11 +105,10 @@ class Kmeans:
 if __name__ == "__main__":
     iris = load_iris()
     X = iris.data
-    y = iris.target
     X_normalized = Normalizer().fit_transform(X)
 
     k = 3
 
     k_means = Kmeans(k=k)
-    labels, centroids = k_means.fit_transform(X_normalized)
+    k_means.fit_transform(X_normalized)
     k_means.plot(X_normalized)
